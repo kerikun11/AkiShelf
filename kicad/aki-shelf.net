@@ -1,7 +1,7 @@
 (export (version D)
   (design
-    (source C:\Users\kerikun11\Dropbox\Github\Aki-Shelf\kicad\aki-shelf.sch)
-    (date "2018/02/19 20:50:07")
+    (source C:/Users/kerikun11/OneDrive/Github/AkiShelf/kicad/aki-shelf.sch)
+    (date "2018/02/22 10:01:13")
     (tool "Eeschema 4.0.7")
     (sheet (number 1) (name /) (tstamps /)
       (title_block
@@ -172,7 +172,7 @@
       (sheetpath (names /) (tstamps /))
       (tstamp 5A89B52F))
     (comp (ref LS1)
-      (value Speaker)
+      (value UGCT7525AN4)
       (footprint aki-shelf:UGCT7525AN4)
       (libsource (lib device) (part Speaker))
       (sheetpath (names /) (tstamps /))
