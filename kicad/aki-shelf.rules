@@ -5,13 +5,13 @@
   )
   (autoroute_settings
     (fanout off)
-    (autoroute off)
+    (autoroute on)
     (postroute on)
     (vias on)
     (via_costs 50)
     (plane_via_costs 5)
     (start_ripup_costs 100)
-    (start_pass_no 8212)
+    (start_pass_no 4572)
     (layer_rule F.Cu
       (active on)
       (preferred_direction vertical)
@@ -40,12 +40,12 @@
     )
     (attach off)
   )
-  (padstack "Via[0-1]_1200:800_um"
+  (padstack "Via[0-1]_1000:600_um"
     (shape
-      (circle F.Cu 1200.0 0.0 0.0)
+      (circle F.Cu 1000.0 0.0 0.0)
     )
     (shape
-      (circle B.Cu 1200.0 0.0 0.0)
+      (circle B.Cu 1000.0 0.0 0.0)
     )
     (attach off)
   )
@@ -53,31 +53,31 @@
     "Via[0-1]_600:300_um" "Via[0-1]_600:300_um" default
   )
   (via 
-    "Via[0-1]_1200:800_um" "Via[0-1]_1200:800_um" default
+    "Via[0-1]_1000:600_um" "Via[0-1]_1000:600_um" default
   )
   (via 
     "Via[0-1]_600:300_um-kicad_default" "Via[0-1]_600:300_um" "kicad_default"
   )
   (via 
-    "Via[0-1]_1200:800_um-kicad_default" "Via[0-1]_1200:800_um" "kicad_default"
+    "Via[0-1]_1000:600_um-kicad_default" "Via[0-1]_1000:600_um" "kicad_default"
   )
   (via 
     "Via[0-1]_600:300_um-3.3V" "Via[0-1]_600:300_um" 3.3V
   )
   (via 
-    "Via[0-1]_1200:800_um-3.3V" "Via[0-1]_1200:800_um" 3.3V
+    "Via[0-1]_1000:600_um-3.3V" "Via[0-1]_1000:600_um" 3.3V
   )
   (via 
     "Via[0-1]_600:300_um-5V" "Via[0-1]_600:300_um" 5V
   )
   (via 
-    "Via[0-1]_1200:800_um-5V" "Via[0-1]_1200:800_um" 5V
+    "Via[0-1]_1000:600_um-5V" "Via[0-1]_1000:600_um" 5V
   )
   (via 
     "Via[0-1]_600:300_um-GND" "Via[0-1]_600:300_um" GND
   )
   (via 
-    "Via[0-1]_1200:800_um-GND" "Via[0-1]_1200:800_um" GND
+    "Via[0-1]_1000:600_um-GND" "Via[0-1]_1000:600_um" GND
   )
   (via_rule
     default "Via[0-1]_600:300_um"
@@ -86,13 +86,13 @@
     "kicad_default" "Via[0-1]_600:300_um-kicad_default"
   )
   (via_rule
-    3.3V "Via[0-1]_1200:800_um-3.3V"
+    3.3V "Via[0-1]_1000:600_um-3.3V"
   )
   (via_rule
-    5V "Via[0-1]_1200:800_um-5V"
+    5V "Via[0-1]_1000:600_um-5V"
   )
   (via_rule
-    GND "Via[0-1]_1200:800_um-GND"
+    GND "Via[0-1]_1000:600_um-GND"
   )
   (class default
     (clearance_class default)
@@ -123,7 +123,7 @@
     (clearance_class 3.3V)
     (via_rule 3.3V)
     (rule
-      (width 800.0)
+      (width 700.0)
     )
     (circuit 
       (use_layer F.Cu B.Cu)
@@ -134,7 +134,7 @@
     (clearance_class 5V)
     (via_rule 5V)
     (rule
-      (width 800.0)
+      (width 700.0)
     )
     (circuit 
       (use_layer F.Cu B.Cu)
@@ -145,7 +145,7 @@
     (clearance_class GND)
     (via_rule GND)
     (rule
-      (width 800.0)
+      (width 700.0)
     )
     (circuit 
       (use_layer F.Cu B.Cu)
