@@ -28,24 +28,24 @@ class AkiShelf {
     }
     enum STATUS_CODE get(const String code, const uint32_t timeout_ms = 3000) {
       if (code.length() != 7) {
-        printf("Error: Invalid Code Format: %s\n", code.c_str());
+        log_e("Invalid Code Format: %s", code.c_str());
         return INVALID_FORMAT;
       }
       if (!client.connect(SERVER_HOSTNAME, SERVER_PORT)) {
-        printf("Error: Failed to connect to server: %s\n", SERVER_HOSTNAME);
+        log_e("Failed to connect to server: %s", SERVER_HOSTNAME);
         return CONNECTION_FAILED;
       }
-      printf("Info: Connected to server: %s\n", SERVER_HOSTNAME);
+      log_i("Connected to server: %s", SERVER_HOSTNAME);
       String request = (String)"GET /catalog/goods/warehouseinfo.aspx?goods=" + code + " HTTP/1.1\r\n"
                        + "Host: " + SERVER_HOSTNAME + "\r\n"
                        + "Connection: close\r\n\r\n";
       client.print(request);
-      printf("Request: %s\n", request.c_str());
+      log_d("Request: %s", request.c_str());
       uint32_t timestamp = millis();
       while (true) {
         if (client.available()) break;
         if (millis() - timestamp > timeout_ms) {
-          printf("Timeout: Reading Server\n");
+          log_e("Timeout: Reading Server");
           return RESPONSE_TIMEOUT;
         }
         delay(10);
@@ -53,8 +53,8 @@ class AkiShelf {
       delay(100);
       client.setTimeout(10);
       if (client.available() < 500) {
-        printf("Error: No such content!\n");
-        printf("Response:\n%s\n", client.readString().c_str());
+        log_e("No such content!");
+        log_d("Response:\n%s", client.readString().c_str());
         return NOT_FOUND;
       }
       while (client.available()) {
@@ -105,7 +105,7 @@ class AkiShelf {
     bool parseQty(String s) {
       s.trim();
       qty = s.toInt();
-      printf("Quantity: %d\n", qty);
+      log_i("Quantity: %d", qty);
       return true;
     }
 };

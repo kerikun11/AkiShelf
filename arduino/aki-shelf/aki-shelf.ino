@@ -103,10 +103,15 @@ void loop() {
   lcd.print("Please");
   lcd.setCursor(0, 1);
   lcd.print("wait...");
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(100);
-    //    bz.play(Buzzer::SHORT);
-    printf("wait...\n");
+  if (WiFi.waitForConnectResult() != WL_CONNECTED) {
+    log_e("wifi connection failed :(");
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("WiFi Con");
+    lcd.setCursor(0, 1);
+    lcd.print("Failed:(");
+    log_i("Tenkey: %c\n", key.read());
+    return;
   }
   enum AkiShelf::STATUS_CODE status = aki.get(code);
   String lcd_str[2];
@@ -142,7 +147,7 @@ void loop() {
   lcd.print(lcd_str[0]);
   lcd.setCursor(0, 1);
   lcd.print(lcd_str[1]);
-  printf("Tenkey: %c\n", key.read());
+  log_i("Tenkey: %c\n", key.read());
   bz.play(Buzzer::SELECT);
 }
 

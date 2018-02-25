@@ -4,7 +4,7 @@
 #define BUZZER_PIN          23
 #define LED_PIN             5
 #define BUTTON_PIN          0
-#define PINS_TENKEY_ROW     {16, 17, 18, 19}
+#define PINS_TENKEY_ROW     {32, 33, 34, 35}
 #define PINS_TENKEY_COL     {25, 26, 27}
 
 /* LEDC channel */
