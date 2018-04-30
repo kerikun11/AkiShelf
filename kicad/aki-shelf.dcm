@@ -5,4 +5,9 @@ D LED RGB, common anode (pin 1)
 K led rgb diode
 $ENDCMP
 #
+$CMP OSTB0603C1C-A
+D LED RGB, common anode (pin 1)
+K led rgb diode
+$ENDCMP
+#
 #End Doc Library
