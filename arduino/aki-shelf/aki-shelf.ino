@@ -9,7 +9,7 @@
 #include <driver/rtc_io.h>
 #include "config.h"
 #include "ST7032.h"
-#include "Tenkey.h"
+#include "tenkey.h"
 #include "buzzer.h"
 #include "button.h"
 #include "AkiShelf.h"
@@ -26,8 +26,26 @@ xSemaphoreHandle xSleepSemaphore = NULL;  //< 自動スリープのためのセ�
 
 void setup() {
   Serial.begin(115200);
-  log_i("\n************************ Aki-Shelf ************************");
+  log_i("************************ Aki-Shelf ************************");
   bz.begin();
+  bz.play(Buzzer::SUCCESSFUL);
+
+  // WiFi 設定
+  WiFi.onEvent([](WiFiEvent_t event) {
+    switch (event) {
+      case ARDUINO_EVENT_WIFI_STA_CONNECTED:
+        log_i("WiFi STA Connected");
+        break;
+      case ARDUINO_EVENT_WIFI_STA_GOT_IP:
+        log_i("WiF STA Got IP %s", WiFi.localIP().toString().c_str());
+        break;
+      case ARDUINO_EVENT_WIFI_STA_DISCONNECTED:
+        log_i("WiFi STA Disconnected");
+        break;
+      default:
+        break;
+    }
+  });
   // 前回接続したWiFiに自動接続
   WiFi.begin();
 
@@ -36,7 +54,7 @@ void setup() {
 
   // LCDの起動
   pinMode(LCD_RESET_PIN, INPUT_PULLUP);
-  Wire.begin(SDA, SCL);
+  Wire.begin();
   lcd.begin(8, 2);
   lcd.noAutoscroll();
   lcd.setContrast(30);
@@ -54,8 +72,7 @@ void setup() {
   // ファームウェア更新用タスク
   xTaskCreate(ota_task, "ota", 4096, NULL, 1, NULL);
 
-  log_d("millis(): %d", millis());
-  xSemaphoreGive(xSleepSemaphore); //< スリープ延期
+  xSemaphoreGive(xSleepSemaphore);  //< スリープ延期
 
   key.read();
   bz.play(Buzzer::SELECT);
@@ -76,7 +93,7 @@ String getCodeFromKey() {
     char c = key.read();
     bz.play(Buzzer::SELECT);
     led.blink(LED::GREEN, 100);
-    xSemaphoreGive(xSleepSemaphore); //< スリープ延期
+    xSemaphoreGive(xSleepSemaphore);  //< スリープ延期
     switch (state) {
       case 0:
         if (c >= '1' && c <= '0' + strlen(code_alphabet)) {
@@ -132,7 +149,7 @@ void loop() {
     case AkiShelf::SUCCESSFUL:
       bz.play(Buzzer::SUCCESSFUL);
       led.blink(LED::BLUE, 500);
-      lcd_str[0] = (String)"Qty:" + String(aki.getQty(), DEC);
+      lcd_str[0] = (String) "Qty:" + String(aki.getQty(), DEC);
       lcd_str[1] = aki.getShelf();
       break;
     case AkiShelf::CONNECTION_FAILED:
@@ -181,6 +198,8 @@ void sleep_task(void *arg) {
   delay(200);
   // LCDの無効化
   pinMode(LCD_RESET_PIN, INPUT_PULLDOWN);
+  // WiFi の無効化
+  WiFi.mode(WIFI_OFF);
   // ウェイクアップ用 RTC-GPIO の設定
   rtc_gpio_pulldown_en(GPIO_NUM_25);
   rtc_gpio_pulldown_en(GPIO_NUM_26);
@@ -197,24 +216,46 @@ void sleep_task(void *arg) {
 */
 void smartConfig_task(void *arg) {
   portTickType xLastWakeTime = xTaskGetTickCount();
-  while (1) {
-    vTaskDelayUntil(&xLastWakeTime, 1 / portTICK_RATE_MS);
-    if (btn.pressed) {
-      btn.flags = 0;
-      bz.play(Buzzer::CONFIRM);
-      log_i("WiFi.beginSmartConfig();");
-      lcd.clear();
-      lcd.setCursor(0, 0);
-      lcd.print("Smart");
-      lcd.setCursor(0, 1);
-      lcd.print("Config...");
-      WiFi.mode(WIFI_AP_STA);
-      WiFi.beginSmartConfig();
-      while (!WiFi.smartConfigDone()) {
-        delay(100);
-      }
+  {
+    while (!btn.pressed)
+      vTaskDelayUntil(&xLastWakeTime, 1 / portTICK_RATE_MS);
+    btn.flags = 0;
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.printf("Battery");
+    lcd.setCursor(0, 1);
+    lcd.printf("%.3f V", analogReadMilliVolts(BATTERY_PIN) * 2 / 1000.0f);
+  }
+  {
+    while (!btn.pressed)
+      vTaskDelayUntil(&xLastWakeTime, 1 / portTICK_RATE_MS);
+    btn.flags = 0;
+    lcd.clear();
+    IPAddress local_ip = WiFi.localIP();
+    lcd.setCursor(0, 0);
+    lcd.printf("%d.%d.", local_ip[0], local_ip[1]);
+    lcd.setCursor(0, 1);
+    lcd.printf("%d.%d", local_ip[2], local_ip[3]);
+  }
+  {
+    while (!btn.pressed)
+      vTaskDelayUntil(&xLastWakeTime, 1 / portTICK_RATE_MS);
+    btn.flags = 0;
+    bz.play(Buzzer::CONFIRM);
+    log_i("WiFi.beginSmartConfig();");
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Smart");
+    lcd.setCursor(0, 1);
+    lcd.print("Config...");
+    WiFi.mode(WIFI_AP_STA);
+    WiFi.beginSmartConfig();
+    while (!WiFi.smartConfigDone()) {
+      delay(100);
+      xSemaphoreGive(xSleepSemaphore);  //< スリープ延期
     }
   }
+  vTaskDelay(portMAX_DELAY);
 }
 
 /** OTA処理をするタスクの関数
@@ -222,6 +263,9 @@ void smartConfig_task(void *arg) {
 */
 void ota_task(void *arg) {
   ArduinoOTA.setHostname("AkiShelf");
+  ArduinoOTA.onProgress([](int progress, int total) {
+    xSemaphoreGive(xSleepSemaphore);  //< スリープ延期
+  });
   ArduinoOTA.begin();
   portTickType xLastWakeTime = xTaskGetTickCount();
   while (1) {

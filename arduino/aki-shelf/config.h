@@ -7,6 +7,7 @@
 #define PIN_LED_BLUE        18
 #define BUTTON_PIN          0
 #define LCD_RESET_PIN       4
+#define BATTERY_PIN         39
 #define PINS_TENKEY_ROW     {32, 33, 34, 35}
 #define PINS_TENKEY_COL     {25, 26, 27}
 
