@@ -8,6 +8,7 @@
 #include <ArduinoOTA.h>
 #include <driver/rtc_io.h>
 #include "config.h"
+#include "AutoSleep.h"
 #include "ST7032.h"
 #include "Tenkey.h"
 #include "buzzer.h"
@@ -36,6 +37,7 @@ void setup() {
 
   // LCDの起動
   pinMode(LCD_RESET_PIN, INPUT_PULLUP);
+  delay(100);
   Wire.begin(SDA, SCL);
   lcd.begin(8, 2);
   lcd.noAutoscroll();
@@ -165,7 +167,8 @@ void loop() {
   lcd.print(lcd_str[0]);
   lcd.setCursor(0, 1);
   lcd.print(lcd_str[1]);
-  log_i("Tenkey: %c\n", key.read());
+  char c = key.read();
+  log_i("Tenkey: %c\n", c);
   bz.play(Buzzer::SELECT);
 }
 
